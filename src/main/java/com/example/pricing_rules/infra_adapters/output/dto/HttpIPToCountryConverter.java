@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.example.pricing_rules.domain.ports.output.IPToCountryConverter;
 import com.example.pricing_rules.domain.ports.Country;
+import org.springframework.http.MediaType;
 
 @Service
 public class HttpIPToCountryConverter implements IPToCountryConverter {
@@ -29,14 +30,28 @@ public class HttpIPToCountryConverter implements IPToCountryConverter {
 
     @Override
     public Country getCountryFromIp(String ip) {
-        ResponseEntity<GeoIp> response = restTemplate.getForEntity(String.format("%s/%s", url, ip), GeoIp.class);
-        GeoIp geoIp = response.getBody();
-        return new Country(geoIp.getCountryName(), geoIp.getCountryCode());
+        try {
+           String apiUrl = String.format("%s/%s?access_key=%s", url, ip, accessKey);
+           ResponseEntity<GeoIp> response = restTemplate.exchange(
+              apiUrl, 
+              HttpMethod.GET, 
+              getHttpEntity(), 
+              GeoIp.class
+            );
+        
+            GeoIp geoIp = response.getBody();
+            if (geoIp == null || geoIp.getCountryCode() == null) {
+               throw new RuntimeException("Invalid response from IPStack API");
+            }
+            return new Country(geoIp.getCountryName(), geoIp.getCountryCode());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get country from IP: " + ip, e);
+        }
     }
 
     private HttpEntity<String> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("access_key", accessKey);
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
         return new HttpEntity<>(headers);
     }
 }
