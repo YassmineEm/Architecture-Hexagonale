@@ -17,8 +17,7 @@ public class CommissionCalculator {
         Country freelanceCountry = ipToCountryConverter.getCountryFromIp(collaboration.getFreelanceIp());
         Country customerCountry = ipToCountryConverter.getCountryFromIp(collaboration.getCustomerIp());
 
-        Commission commission = new Commission(freelanceCountry, customerCountry, collaboration);
-
+        Commission commission = new Commission(freelanceCountry, customerCountry, collaboration.getCommercialRelation());
         return commission.calculate();
     }
 }
