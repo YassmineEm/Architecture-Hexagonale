@@ -1,1 +1,1 @@
-<img src="Hexagonal.PNG" alt="Architecture hexagonale" width="500" align="center"/>
+<img src="Hexagonal.PNG" alt="Architecture hexagonale" width="900" align="center"/>
